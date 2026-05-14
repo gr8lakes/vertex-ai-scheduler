@@ -1,0 +1,31 @@
+main:
+  params: [args]
+  steps:
+    - init:
+        assign:
+          - project_id: "zm-vertexai-test01"
+          - service_name: "aiplatform.googleapis.com"
+          - action: ${args.action} # 传入 "enable" 或 "disable"
+          
+    - getRandomDelay:
+        call: http.get
+        args:
+          # 请求外部免费的随机数生成接口，返回 1~1800 (代表秒，即 30 分钟内随机)
+          url: "https://www.randomnumberapi.com/api/v1.0/random?min=1&max=1800&count=1"
+        result: randomResponse
+        
+    - waitRandomTime:
+        call: sys.sleep
+        args:
+          seconds: ${randomResponse.body[0]} # 从数组中提取返回的随机秒数
+          
+    - toggleVertexAI:
+        call: http.post
+        args:
+          url: ${"https://serviceusage.googleapis.com/v1/projects/" + project_id + "/services/" + service_name + ":" + action}
+          auth:
+            type: OAuth2
+        result: toggleResult
+
+    - returnResult:
+        return: ${toggleResult}
