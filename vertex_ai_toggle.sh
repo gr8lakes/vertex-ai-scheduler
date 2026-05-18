@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Vertex AI 定时开关脚本
-# 功能：在指定时间窗口内随机选择一个时间点 enable/disable Vertex AI API
+# Agent Platform 定时开关脚本
+# 功能：在指定时间窗口内随机选择一个时间点 enable/disable Agent Platform API
 # 用法：
 #   ./vertex_ai_toggle.sh enable   # 随机延迟后启用
 #   ./vertex_ai_toggle.sh disable  # 随机延迟后禁用
@@ -11,18 +11,18 @@
 # ============================================================
 
 # GCP Project ID（必须修改）
-PROJECT_ID="${VERTEX_PROJECT_ID:-zm-vertexai-test01}"
+PROJECT_ID="${AGENT_PLATFORM_PROJECT_ID:-${VERTEX_PROJECT_ID:-zm-vertexai-test01}}"
 
 # 随机延迟窗口（分钟）- 在 0 到 MAX_DELAY_MINUTES 之间随机等待
 # cron 在整点触发，脚本会随机延迟 0-30 分钟再执行
 MAX_DELAY_MINUTES=30
 
-# Vertex AI API 服务名
+# Agent Platform API 服务名
 SERVICE_NAME="aiplatform.googleapis.com"
 
 # 日志文件
 LOG_DIR="$(dirname "$0")/logs"
-LOG_FILE="${LOG_DIR}/vertex_ai_toggle.log"
+LOG_FILE="${LOG_DIR}/agent_platform_toggle.log"
 
 # ============================================================
 # 逻辑区域
@@ -38,14 +38,14 @@ log() {
 ACTION="$1"
 if [[ "${ACTION}" != "enable" && "${ACTION}" != "disable" ]]; then
     echo "用法: $0 {enable|disable}"
-    echo "  enable  - 随机延迟后启用 Vertex AI API"
-    echo "  disable - 随机延迟后禁用 Vertex AI API"
+    echo "  enable  - 随机延迟后启用 Agent Platform API"
+    echo "  disable - 随机延迟后禁用 Agent Platform API"
     exit 1
 fi
 
 # 检查 Project ID
 if [[ "${PROJECT_ID}" == "your-project-id-here" ]]; then
-    log "❌ 错误: 请先设置 PROJECT_ID 或环境变量 VERTEX_PROJECT_ID"
+    log "❌ 错误: 请先设置 PROJECT_ID 或环境变量 AGENT_PLATFORM_PROJECT_ID"
     exit 1
 fi
 
@@ -82,7 +82,7 @@ fi
 EXIT_CODE=$?
 
 if [[ ${EXIT_CODE} -eq 0 ]]; then
-    log "✅ 成功: Vertex AI API 已 ${ACTION} (项目: ${PROJECT_ID})"
+    log "✅ 成功: Agent Platform API 已 ${ACTION} (项目: ${PROJECT_ID})"
 else
     log "❌ 失败 (exit code: ${EXIT_CODE}): ${OUTPUT}"
 fi
@@ -94,9 +94,9 @@ STATUS=$(gcloud services list --project="${PROJECT_ID}" \
     --format="value(config.name)" 2>&1)
 
 if [[ -n "${STATUS}" ]]; then
-    log "📊 当前状态: Vertex AI API 已启用"
+    log "📊 当前状态: Agent Platform API 已启用"
 else
-    log "📊 当前状态: Vertex AI API 已禁用"
+    log "📊 当前状态: Agent Platform API 已禁用"
 fi
 
 log "---"

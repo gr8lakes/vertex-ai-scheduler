@@ -1,8 +1,8 @@
-# Vertex AI Scheduler
+# Agent Platform Scheduler
 
-Automated Vertex AI API enable/disable scheduler.
+Automated Agent Platform API enable/disable scheduler.
 
-This repository provides two ways to reduce idle Vertex AI usage in a test
+This repository provides two ways to reduce idle Agent Platform usage in a test
 environment:
 
 - **Recommended:** Google Cloud Scheduler + Cloud Workflows serverless setup.
@@ -10,14 +10,14 @@ environment:
 
 The default Cloud Scheduler schedule is:
 
-- Disable Vertex AI at **19:00**.
-- Enable Vertex AI at **10:00**.
+- Disable Agent Platform at **19:00**.
+- Enable Agent Platform at **10:00**.
 
 ## Repository Contents
 
 | File | Purpose |
 | --- | --- |
-| `workflow.yaml` | Cloud Workflows definition for enabling or disabling Vertex AI. |
+| `workflow.yaml` | Cloud Workflows definition for enabling or disabling Agent Platform. |
 | `setup_cron.sh` | Installs, removes, and checks local crontab jobs. |
 | `vertex_ai_toggle.sh` | Local Bash implementation that calls `gcloud services enable/disable`. |
 | `Vertex_AI_自动化休眠方案宣贯文档.md` | Detailed Chinese design and rollout document. |
@@ -42,7 +42,7 @@ Create or choose a service account, then grant it:
 Update `project_id` in `workflow.yaml`, then deploy it:
 
 ```bash
-gcloud workflows deploy vertex-ai-scheduler \
+gcloud workflows deploy agent-platform-scheduler \
   --source=workflow.yaml \
   --location=asia-east1 \
   --service-account=YOUR_SERVICE_ACCOUNT_EMAIL
@@ -50,26 +50,26 @@ gcloud workflows deploy vertex-ai-scheduler \
 
 ### Create Scheduler Jobs
 
-Create one job to disable Vertex AI in the evening:
+Create one job to disable Agent Platform in the evening:
 
 ```bash
-gcloud scheduler jobs create http vertex-ai-disable \
+gcloud scheduler jobs create http agent-platform-disable \
   --schedule="0 19 * * *" \
   --time-zone="Asia/Shanghai" \
-  --uri="https://workflowexecutions.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/asia-east1/workflows/vertex-ai-scheduler/executions" \
+  --uri="https://workflowexecutions.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/asia-east1/workflows/agent-platform-scheduler/executions" \
   --http-method=POST \
   --oauth-service-account-email=YOUR_SERVICE_ACCOUNT_EMAIL \
   --headers="Content-Type=application/json" \
   --message-body='{"argument":"{\"action\":\"disable\"}"}'
 ```
 
-Create another job to enable Vertex AI in the morning:
+Create another job to enable Agent Platform in the morning:
 
 ```bash
-gcloud scheduler jobs create http vertex-ai-enable \
+gcloud scheduler jobs create http agent-platform-enable \
   --schedule="0 10 * * *" \
   --time-zone="Asia/Shanghai" \
-  --uri="https://workflowexecutions.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/asia-east1/workflows/vertex-ai-scheduler/executions" \
+  --uri="https://workflowexecutions.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/asia-east1/workflows/agent-platform-scheduler/executions" \
   --http-method=POST \
   --oauth-service-account-email=YOUR_SERVICE_ACCOUNT_EMAIL \
   --headers="Content-Type=application/json" \
@@ -90,7 +90,7 @@ The local fallback requires:
 Set the target project:
 
 ```bash
-export VERTEX_PROJECT_ID=YOUR_PROJECT_ID
+export AGENT_PLATFORM_PROJECT_ID=YOUR_PROJECT_ID
 ```
 
 Install local cron jobs:
@@ -115,11 +115,11 @@ Remove cron jobs:
 Logs are written to:
 
 ```text
-logs/vertex_ai_toggle.log
+logs/agent_platform_toggle.log
 ```
 
 ## Notes
 
-- The workflow targets `aiplatform.googleapis.com`.
+- The workflow targets the Agent Platform service API, `aiplatform.googleapis.com`.
 - The Cloud Workflows path does not depend on an external random number API.
 - Do not commit service account keys or other credentials into this repository.

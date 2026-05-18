@@ -1,8 +1,8 @@
-# Vertex AI API 自动化启停方案（Serverless 方案）
+# Agent Platform API 自动化启停方案（Serverless 方案）
 
 ## 1. 背景与目标
-目前测试环境中的 Vertex AI (`aiplatform.googleapis.com`) 在夜间闲置期间依然可能会产生不必要的消耗，我们需要在夜间停止该服务，并在白天恢复。
-当前方案采用固定时间触发，通过 Cloud Scheduler 在指定时间调用 Cloud Workflows，完成 Vertex AI API 的启停。
+目前测试环境中的 Agent Platform (`aiplatform.googleapis.com`) 在夜间闲置期间依然可能会产生不必要的消耗，我们需要在夜间停止该服务，并在白天恢复。
+当前方案采用固定时间触发，通过 Cloud Scheduler 在指定时间调用 Cloud Workflows，完成 Agent Platform API 的启停。
 
 - **关闭时间：** 每天晚上 `19:00`
 - **开启时间：** 每天早上 `10:00`
