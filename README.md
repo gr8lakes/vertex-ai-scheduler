@@ -1,6 +1,6 @@
 # Vertex AI Scheduler
 
-Automated Vertex AI API enable/disable scheduler with random delay jitter.
+Automated Vertex AI API enable/disable scheduler.
 
 This repository provides two ways to reduce idle Vertex AI usage in a test
 environment:
@@ -8,12 +8,10 @@ environment:
 - **Recommended:** Google Cloud Scheduler + Cloud Workflows serverless setup.
 - **Fallback:** Local crontab + Bash scripts.
 
-The default schedule is:
+The default Cloud Scheduler schedule is:
 
-- Disable Vertex AI between **19:00 and 19:30**.
-- Enable Vertex AI between **10:00 and 10:30**.
-
-The random delay helps avoid a fixed daily on/off timestamp.
+- Disable Vertex AI at **19:00**.
+- Enable Vertex AI at **10:00**.
 
 ## Repository Contents
 
@@ -29,9 +27,7 @@ The random delay helps avoid a fixed daily on/off timestamp.
 The recommended architecture is fully managed by Google Cloud:
 
 1. **Cloud Scheduler** triggers the workflow at fixed cron times.
-2. **Cloud Workflows** fetches a random delay from `randomnumberapi.com`.
-3. The workflow sleeps for the random number of seconds.
-4. The workflow calls the Service Usage API to enable or disable
+2. **Cloud Workflows** calls the Service Usage API to enable or disable
    `aiplatform.googleapis.com`.
 
 ### Required IAM Roles
@@ -125,7 +121,5 @@ logs/vertex_ai_toggle.log
 ## Notes
 
 - The workflow targets `aiplatform.googleapis.com`.
-- The workflow currently uses `randomnumberapi.com` for jitter generation.
-- If the random API is unavailable, that workflow execution may fail and skip
-  the enable/disable action for that run.
+- The Cloud Workflows path does not depend on an external random number API.
 - Do not commit service account keys or other credentials into this repository.
